@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const devMode = process.env.NODE_ENV !== 'production'
 
 /*
  * We've enabled MiniCssExtractPlugin for you. This allows your app to
@@ -51,31 +52,14 @@ module.exports = {
 				test: /\.js$/
 			},
 			{
-				test: /\.(scss|css)$/,
-
+				test: /\.(sa|sc|c)ss$/,
 				use: [
-					{
-						loader: 'style-loader'
-					},
-					{
-						loader: MiniCssExtractPlugin.loader
-					},
-					{
-						loader: 'css-loader',
-
-						options: {
-							sourceMap: true
-						}
-					},
-					{
-						loader: 'sass-loader',
-
-						options: {
-							sourceMap: true
-						}
-					}
+				MiniCssExtractPlugin.loader,// devMode ? 'style-loader'
+				  'css-loader',
+				  'postcss-loader',
+				  'sass-loader',
 				]
-			}
+			  }
 		]
 	},
 
@@ -87,8 +71,11 @@ module.exports = {
 		  filename: 'index.html'
 		}),
 		new MiniCssExtractPlugin({
-			filename: `src/[name].css`
-		  }),
+			// Options similar to the same options in webpackOptions.output
+			// both options are optional
+			filename: "[name].css",
+      		chunkFilename: "[id].css"
+		  })
 	  ],
 
 	mode: 'production',
@@ -99,7 +86,13 @@ module.exports = {
 				vendors: {
 					priority: -10,
 					test: /[\\/]node_modules[\\/]/
-				}
+				},
+				styles: {
+					name: 'styles',
+					test: /\.css$/,
+					chunks: 'all',
+					enforce: true
+				  }
 			},
 
 			chunks: 'async',
